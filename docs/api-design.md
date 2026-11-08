@@ -67,6 +67,52 @@ flowchart TD
 ```
 
 
+## 4. API Request and Subscription Flow
+
+This diagram shows how a member interacts with the platform, from authentication to subscription management and entitlement verification.
+
+```mermaid
+flowchart TD
+    A["Member / Client Application"] --> B["API Gateway"]
+    B --> C{"Authenticated?"}
+
+    C -->|No| D["Return 401 Unauthorized"]
+    C -->|Yes| E["Member Service"]
+
+    E --> F["Retrieve Member Profile"]
+    F --> G["Subscription Service"]
+
+    G --> H{"Subscription Action"}
+
+    H -->|View Plans| I["Fetch Available Plans"]
+    H -->|Subscribe| J["Validate Plan and Payment"]
+    H -->|Cancel| K["Process Cancellation"]
+    H -->|View Status| L["Retrieve Subscription Status"]
+
+    J --> M["Create Subscription"]
+    M --> N[("PostgreSQL")]
+    K --> N
+    L --> N
+
+    I --> O["Return API Response"]
+    N --> P["Entitlement Service"]
+    P --> Q["Check Membership Access"]
+    Q --> R["Update Redis Cache"]
+    R --> O
+```
+
+### Flow Explanation
+
+1. The member sends a request through the client application.
+2. The API Gateway validates authentication and applies rate limits.
+3. The Member Service retrieves account and profile details.
+4. The Subscription Service handles plan selection, subscription creation, cancellation, or status checks.
+5. Subscription changes are stored in PostgreSQL.
+6. The Entitlement Service checks the member's available features.
+7. Redis caches frequently accessed entitlement information.
+8. The API returns the response to the client.
+
+
 
 \## 4. API Standards
 
